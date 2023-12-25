@@ -484,7 +484,10 @@ const float SplashScreen::SharpRatio = 0.65f;
 
 GameState::GameError SplashScreen::Render()
 {
-    if (FAILED(m_pRenderer->ResetDeviceIfNeeded())) return DirectXError;
+    if (FAILED(m_pRenderer->ResetDeviceIfNeeded()))
+    {
+        return DirectXError;
+    };
 
     // Clear the backbuffer to a blue color
     m_pRenderer->ClearAndBeginScene(D3DCOLOR_XRGB(0, 0, 0));
@@ -531,7 +534,8 @@ void SplashScreen::RenderNotes()
     if (m_iEndPos < 0 || m_iStartPos >= static_cast<int>(m_vEvents.size()))
         return;
 
-    for (int i = m_iEndPos; i >= m_iStartPos; i--) {
+    for (int i = m_iEndPos; i >= m_iStartPos; i--) 
+    {
         MIDIChannelEvent* pEvent = m_vEvents[i];
         if (pEvent->GetChannelEventType() == MIDIChannelEvent::NoteOn &&
             pEvent->GetParam2() > 0 && pEvent->HasSister() &&
@@ -539,7 +543,9 @@ void SplashScreen::RenderNotes()
             RenderNote(pEvent);
         }
     }
-    for (int i = 0; i < 128; i++) {
+
+    for (int i = 0; i < 128; i++) 
+    {
         if (MIDI::IsSharp(i)) {
             for (vector< int >::reverse_iterator it = (m_vState[i]).rbegin(); it != (m_vState[i]).rend(); it++) {
                 RenderNote(m_vEvents[*it]);
@@ -547,7 +553,8 @@ void SplashScreen::RenderNotes()
         }
     }
 
-    for (int i = m_iEndPos; i >= m_iStartPos; i--) {
+    for (int i = m_iEndPos; i >= m_iStartPos; i--) 
+    {
         MIDIChannelEvent* pEvent = m_vEvents[i];
         if (pEvent->GetChannelEventType() == MIDIChannelEvent::NoteOn &&
             pEvent->GetParam2() > 0 && pEvent->HasSister())
@@ -557,7 +564,8 @@ void SplashScreen::RenderNotes()
             }
         }
     }
-    for (int i = 0; i < 128; i++) {
+    for (int i = 0; i < 128; i++) 
+    {
         if (!MIDI::IsSharp(i)) {
             for (vector< int >::reverse_iterator it = (m_vState[i]).rbegin(); it != (m_vState[i]).rend(); it++) {
                 RenderNote(m_vEvents[*it]);
@@ -575,6 +583,7 @@ void SplashScreen::RenderNote(MIDIChannelEvent* pNote)
     int iChannel = pNote->GetChannel();
     long long llNoteStart = pNote->GetAbsMicroSec();
     long long llNoteEnd = llNoteStart + pNote->GetLength();
+
     m_pRenderer->PushNoteData(
         NoteData{
             .key = (uint8_t)iNote,
@@ -1803,8 +1812,8 @@ void MainScreen::RenderLines()
 void MainScreen::RenderNotes()
 {
     // Do we have any notes to render?
-    if (m_iEndPos < 0 || m_iStartPos >= m_vEvents.size())
-        return;
+    //if (m_iEndPos < 0 || m_iStartPos >= m_vEvents.size())
+        //return;
 
     // Ensure that any rects rendered after this point render over the notes
     m_pRenderer->SplitRect();
@@ -2147,11 +2156,13 @@ void MainScreen::RenderStatus(LPRECT prcStatus)
         m_llStartTime >= 0 ? "" : "-",
         min, sec, cs,
         tmin, tsec, tcs);
-    RenderStatusLine(cur_line++, "Tempo:", "%.3lf bpm", tempo);
+    //RenderStatusLine(cur_line++, "Tempo:", "%.3lf bpm", tempo);
 
     // Framerate
     if (m_bShowFPS && !m_bDumpFrames)
         RenderStatusLine(cur_line++, "FPS:", "%.1lf", m_dFPS);
+
+    RenderStatusLine(cur_line++, "Score:", "N/A");
 
     // Nerd stats
     if (viz.bNerdStats) {
