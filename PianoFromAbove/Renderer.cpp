@@ -86,7 +86,7 @@ std::tuple<HRESULT, const char*> D3D12Renderer::Init(HWND hWnd, bool bLimitFPS) 
         res = D3D12CreateDevice(m_pAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice));
         if (FAILED(res))
             continue;
-            //return std::make_tuple(res, "D3D12CreateDevice");
+        //return std::make_tuple(res, "D3D12CreateDevice");
         break;
     }
     if (m_pDevice == nullptr) {
@@ -344,7 +344,7 @@ std::tuple<HRESULT, const char*> D3D12Renderer::Init(HWND hWnd, bool bLimitFPS) 
     res = m_pDevice->CreateGraphicsPipelineState(&rect_pipeline_desc, IID_PPV_ARGS(&m_pRectPipelineState));
     if (FAILED(res))
         return std::make_tuple(res, "CreateGraphicsPipelineState (rect)");
-    
+
     // Create note root signature
     ComPtr<ID3DBlob> note_serialized;
     res = D3D12SerializeRootSignature(&root_sig_desc, D3D_ROOT_SIGNATURE_VERSION_1, &note_serialized, nullptr);
@@ -610,7 +610,7 @@ std::tuple<HRESULT, const char*> D3D12Renderer::Init(HWND hWnd, bool bLimitFPS) 
         return std::make_tuple(res, "Closing command list for initial buffer upload");
 
     // Execute the command list
-    ID3D12CommandList* command_lists[] = { m_pCommandList.Get()};
+    ID3D12CommandList* command_lists[] = { m_pCommandList.Get() };
     m_pCommandQueue->ExecuteCommandLists(1, command_lists);
 
     // Wait for everything to finish
@@ -672,7 +672,8 @@ std::tuple<HRESULT, const char*> D3D12Renderer::CreateWindowDependentObjects(HWN
         res = m_pSwapChain->ResizeBuffers(FrameCount, 0, 0, DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING);
         if (FAILED(res))
             return std::make_tuple(res, "ResizeBuffers");
-    } else {
+    }
+    else {
         // Create swap chain
         IDXGISwapChain1* temp_swapchain = nullptr;
         DXGI_SWAP_CHAIN_DESC1 swap_chain_desc = {
@@ -858,10 +859,10 @@ std::tuple<HRESULT, const char*> D3D12Renderer::CreateWindowDependentObjects(HWN
     float T = 0;
     float B = m_iBufferHeight;
     float mvp[4][4] = {
-        { 2.0f/(R-L),   0.0f,           0.0f,       0.0f },
-        { 0.0f,         2.0f/(T-B),     0.0f,       0.0f },
+        { 2.0f / (R - L),   0.0f,           0.0f,       0.0f },
+        { 0.0f,         2.0f / (T - B),     0.0f,       0.0f },
         { 0.0f,         0.0f,           0.5f,       0.0f },
-        { (R+L)/(L-R),  (T+B)/(B-T),    0.5f,       1.0f },
+        { (R + L) / (L - R),  (T + B) / (B - T),    0.5f,       1.0f },
     };
     memcpy(m_RootConstants.proj, mvp, sizeof(mvp));
 
@@ -1130,7 +1131,7 @@ HRESULT D3D12Renderer::DrawRect(float x, float y, float cx, float cy, DWORD c1, 
         {x + cx, y,      c2},
         {x + cx, y + cy, c3},
         {x,      y + cy, c4},
-    });
+        });
     return S_OK;
 }
 
@@ -1144,7 +1145,7 @@ HRESULT D3D12Renderer::DrawSkew(float x1, float y1, float x2, float y2, float x3
         {x2, y2, c2},
         {x3, y3, c3},
         {x4, y4, c4},
-    });
+        });
     return S_OK;
 }
 
@@ -1378,7 +1379,7 @@ bool D3D12Renderer::UploadBackgroundBitmap() {
     UpdateSubresources(m_pCommandList.Get(), m_pTextureBuffer.Get(), m_pTextureUpload.Get(), 0, 0, 1, &texture_data);
     barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     m_pCommandList->ResourceBarrier(1, &barrier);
-    
+
     // Execute the command list
     m_pCommandList->Close();
     ID3D12CommandList* command_lists[] = { m_pCommandList.Get() };
