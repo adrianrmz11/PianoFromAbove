@@ -121,6 +121,7 @@ private:
     std::tuple<HRESULT, const char*> CreateWindowDependentObjects(HWND hWnd);
     void SetupCommandList();
     bool UploadBackgroundBitmap();
+    void MaintainAspectRatio();
 
     static constexpr unsigned FrameCount = 2;
     static constexpr unsigned RectsPerPass = 10000; // Relatively low limit, but not many rects are supposed to be rendered anyway

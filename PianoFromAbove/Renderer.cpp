@@ -1341,24 +1341,45 @@ bool D3D12Renderer::LoadBackgroundBitmap(std::wstring path) {
     return UploadBackgroundBitmap();
 }
 
+void MantainAspectRatio(int* bWidth, int* bHeight)
+{
+    if (*bWidth > *bHeight)
+    {
+        *bHeight = *bHeight * *bWidth / *bHeight;
+    }
+    else if (*bHeight > *bWidth)
+    {
+        *bWidth = *bWidth * *bHeight / *bWidth;
+    }
+}
+
 bool D3D12Renderer::UploadBackgroundBitmap() {
     // Don't bother if an image wasn't loaded in the first place
     if (!m_pUnscaledBackground)
-        return false;
+        return false;   
 
     // Create a WIC bitmap scaler
     ComPtr<IWICBitmapScaler> scaler;
+
     if (FAILED(s_pWICFactory->CreateBitmapScaler(&scaler)))
         return false;
 
+    int bWidth = m_iBufferWidth, 
+        bHeight = m_iBufferHeight,
+        factor = 4;
+
+    // Fix aspect ratio
+    MantainAspectRatio(&bWidth, &bHeight);
+
     // Resize the image to the desired resolution
-    if (FAILED(scaler->Initialize(m_pUnscaledBackground.Get(), m_iBufferWidth, m_iBufferHeight, WICBitmapInterpolationModeHighQualityCubic)))
+    if (FAILED( scaler->Initialize(m_pUnscaledBackground.Get(), bWidth, bHeight, WICBitmapInterpolationModeHighQualityCubic) ))
         return false;
 
     // Copy the scaled bitmap to a new buffer
     std::vector<BYTE> scaled;
-    scaled.resize(m_iBufferWidth * m_iBufferHeight * 4);
-    if (FAILED(scaler->CopyPixels(NULL, m_iBufferWidth * 4, scaled.size(), scaled.data())))
+    scaled.resize(bWidth * bHeight * factor);
+
+    if ( FAILED(scaler->CopyPixels(NULL, bWidth * factor, scaled.size(), scaled.data())) )
         return false;
 
     // Wait for the GPU to finish any work it's doing
@@ -1371,9 +1392,10 @@ bool D3D12Renderer::UploadBackgroundBitmap() {
     // Upload the new texture data
     D3D12_SUBRESOURCE_DATA texture_data = {
         .pData = scaled.data(),
-        .RowPitch = m_iBufferWidth * 4,
-        .SlicePitch = (LONG_PTR)scaled.size(),
+        .RowPitch = bWidth * factor,
+        .SlicePitch = (LONG_PTR)scaled.size()
     };
+
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
     m_pCommandList->ResourceBarrier(1, &barrier);
     UpdateSubresources(m_pCommandList.Get(), m_pTextureBuffer.Get(), m_pTextureUpload.Get(), 0, 0, 1, &texture_data);

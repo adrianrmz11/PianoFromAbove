@@ -12,15 +12,12 @@
 #include <tchar.h>
 #include <ppl.h>
 #include <dwmapi.h>
-
 #include "Globals.h"
 #include "GameState.h"
 #include "Config.h"
 #include "resource.h"
 #include "ConfigProcs.h"
 #include <d3d9types.h>
-
-
 #include <intrin.h>
 
 int __builtin_ctz(unsigned int value)
@@ -648,7 +645,7 @@ void MainScreen::InitColors()
 
     m_csBackground.SetColor(0x00464646, 0.7f, 1.3f);
     m_csKBBackground.SetColor(0x00999999, 0.4f, 0.0f);
-    m_csKBRed.SetColor(cViz.iBarColor, 0.5f);
+    m_csKBRed.SetColor(0x000D0A98, 0.5f);
     m_csKBWhite.SetColor(0x00FFFFFF, 0.8f, 0.6f);
     m_csKBSharp.SetColor(0x00404040, 0.5f, 0.0f);
 }
@@ -717,10 +714,13 @@ GameState::GameError MainScreen::Init()
     static Config& config = Config::GetConfig();
     static const AudioSettings& cAudio = config.GetAudioSettings();
     static const VizSettings& cViz = config.GetVizSettings();
-    if (cViz.bKDMAPI) {
+
+    if (cViz.bKDMAPI) 
+    {
         m_OutDevice.OpenKDMAPI();
     }
-    else {
+    else 
+    {
         if (cAudio.iOutDevice >= 0)
             m_OutDevice.Open(cAudio.iOutDevice);
     }
@@ -728,19 +728,24 @@ GameState::GameError MainScreen::Init()
     m_OutDevice.Reset();
     m_OutDevice.SetVolume(1.0);
     m_Timer.Init(config.m_bManualTimer || m_bDumpFrames);
-    if (m_bDumpFrames) {
+    if (m_bDumpFrames) 
+    {
         m_Timer.SetFrameRate(60);
     }
-    else if (m_Timer.m_bManualTimer) {
+    else if (m_Timer.m_bManualTimer) 
+    {
         // get the screen's refresh rate
         DWM_TIMING_INFO timing_info;
         memset(&timing_info, 0, sizeof(timing_info));
         timing_info.cbSize = sizeof(timing_info);
-        if (FAILED(DwmGetCompositionTimingInfo(NULL, &timing_info))) {
+
+        if (FAILED(DwmGetCompositionTimingInfo(NULL, &timing_info))) 
+        {
             MessageBox(NULL, L"Failed to get the screen refresh rate! Defaulting to 60hz...", L"", MB_ICONERROR);
             m_Timer.SetFrameRate(60);
         }
-        else {
+        else 
+        {
             m_Timer.SetFrameRate(ceil(static_cast<float>(timing_info.rateRefresh.uiNumerator) / static_cast<float>(timing_info.rateRefresh.uiDenominator)));
         }
 
@@ -1038,9 +1043,6 @@ GameState::GameError MainScreen::Logic(void)
     static const VizSettings& cViz = config.GetVizSettings();
     const MIDI::MIDIInfo& mInfo = m_MIDI.GetInfo();
 
-    // people are probably going to yell at me if you can't change the bar color during playback
-    m_csKBRed.SetColor(cViz.iBarColor, 0.5f);
-
     // Detect changes in state
     bool bPaused = cPlayback.GetPaused();
     double dSpeed = cPlayback.GetSpeed();
@@ -1129,11 +1131,14 @@ GameState::GameError MainScreen::Logic(void)
 
     // Advance end position
     size_t iEventCount = m_vEvents.size();
-    if (m_bTickMode) {
+
+    if (m_bTickMode) 
+    {
         while (m_iEndPos + 1 < iEventCount && m_vEvents[m_iEndPos + 1]->GetAbsT() < llEndTime)
             m_iEndPos++;
     }
-    else {
+    else 
+    {
         while (m_iEndPos + 1 < iEventCount && m_vEvents[m_iEndPos + 1]->GetAbsMicroSec() < llEndTime)
             m_iEndPos++;
     }

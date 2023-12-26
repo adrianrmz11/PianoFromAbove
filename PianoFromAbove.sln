@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.8.34004.107
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.34301.259
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PianoFromAbove", "PianoFromAbove\PianoFromAbove.vcxproj", "{DD4C822F-844F-40BF-8113-129B04EDE199}"
 EndProject
@@ -13,6 +13,8 @@ Global
 		Release|x64 = Release|x64
 		ReleaseSSE|Win32 = ReleaseSSE|Win32
 		ReleaseSSE|x64 = ReleaseSSE|x64
+		x|Win32 = x|Win32
+		x|x64 = x|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DD4C822F-844F-40BF-8113-129B04EDE199}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -27,6 +29,10 @@ Global
 		{DD4C822F-844F-40BF-8113-129B04EDE199}.ReleaseSSE|Win32.Build.0 = ReleaseSSE|Win32
 		{DD4C822F-844F-40BF-8113-129B04EDE199}.ReleaseSSE|x64.ActiveCfg = ReleaseSSE|x64
 		{DD4C822F-844F-40BF-8113-129B04EDE199}.ReleaseSSE|x64.Build.0 = ReleaseSSE|x64
+		{DD4C822F-844F-40BF-8113-129B04EDE199}.x|Win32.ActiveCfg = x|Win32
+		{DD4C822F-844F-40BF-8113-129B04EDE199}.x|Win32.Build.0 = x|Win32
+		{DD4C822F-844F-40BF-8113-129B04EDE199}.x|x64.ActiveCfg = Release|x64
+		{DD4C822F-844F-40BF-8113-129B04EDE199}.x|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
