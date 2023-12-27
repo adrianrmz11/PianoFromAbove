@@ -20,21 +20,6 @@
 #include <d3d9types.h>
 #include <intrin.h>
 
-int __builtin_ctz(unsigned int value)
-{
-    DWORD leading_zero = 0;
-
-    if (_BitScanReverse(&leading_zero, value))
-    {
-        return 31 - leading_zero;
-    }
-    else
-    {
-        // Same remarks as above
-        return 32;
-    }
-}
-
 const wstring GameState::Errors[] =
 {
     L"Success.",
@@ -362,7 +347,7 @@ GameState::GameError SplashScreen::Logic()
 
     // Update root constants
     auto& root_consts = m_pRenderer->GetRootConstants();
-    root_consts.deflate = clamp(round(m_fWhiteCX * 0.15f / 2.0f), 1.0f, 3.0f);
+    root_consts.deflate = std::clamp(round(m_fWhiteCX * 0.15f / 2.0f), 1.0f, 3.0f);
     root_consts.notes_y = m_fNotesY;
     root_consts.notes_cy = m_fNotesCY;
     root_consts.white_cx = m_fWhiteCX;
@@ -1225,7 +1210,7 @@ GameState::GameError MainScreen::Logic(void)
 
     // Update root constants
     auto& root_consts = m_pRenderer->GetRootConstants();
-    root_consts.deflate = clamp(round(m_fWhiteCX * 0.15f / 2.0f), 1.0f, 3.0f);
+    root_consts.deflate = std::clamp(round(m_fWhiteCX * 0.15f / 2.0f), 1.0f, 3.0f);
     root_consts.notes_y = m_fNotesY;
     root_consts.notes_cy = m_fNotesCY;
     root_consts.white_cx = m_fWhiteCX;

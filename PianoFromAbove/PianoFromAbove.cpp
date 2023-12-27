@@ -179,7 +179,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdL
     }
 
     // Create the application window
-    g_hWnd = CreateWindowEx( 0, CLASSNAME, L"pfavizkhang-dx12 " __DATE__, WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, cView.GetMainLeft(), cView.GetMainTop(),
+    g_hWnd = CreateWindowEx( 0, CLASSNAME, L"PianoFromAbove", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, cView.GetMainLeft(), cView.GetMainTop(),
                              cView.GetMainWidth(), cView.GetMainHeight(), NULL, NULL, wc.hInstance, NULL );
     if ( !g_hWnd ) return 1;
 
@@ -214,8 +214,8 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdL
     SetFocus( g_hWndGfx );
     cPlayback.SetPaused( false, false );
 
-    // Spawn update check thread
-    CreateThread(NULL, 0, UpdateCheckProc, NULL, 0, NULL);
+    // Spawn update check thread, I DONT WANT FUCKING UPDATES.
+    //CreateThread(NULL, 0, UpdateCheckProc, NULL, 0, NULL);
 
     // Enter the message loop
     MSG msg = { 0 };
@@ -267,7 +267,7 @@ DWORD WINAPI GameThread( LPVOID lpParameter )
 
     // Put the adapter in the window title
     wchar_t buf[1024] = {};
-    _snwprintf_s(buf, 1024, L"pfavizkhang-dx12 %S (Device: %s)", __DATE__, pRenderer->GetAdapterName().c_str());
+    _snwprintf_s(buf, 1024, L"PianoFromAbove");
     SetWindowTextW(g_hWnd, buf);
 
     // Event, logic, render...
