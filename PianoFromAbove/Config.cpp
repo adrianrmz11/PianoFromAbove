@@ -122,9 +122,7 @@ bool Config::SaveConfigValues()
     txRoot = new TiXmlElement(APPNAMENOSPACES);
     doc.LinkEndChild(txRoot);
 
-    m_VizSettings.SaveConfigValues(txRoot);
-
-    return bStockRet && doc.SaveFile(sPath + "\\pfavizkhang.xml");
+    return bStockRet;
 }
 
 bool Config::SaveConfigValues( TiXmlElement *txRoot )

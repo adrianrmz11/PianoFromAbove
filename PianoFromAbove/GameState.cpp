@@ -600,7 +600,7 @@ void MainScreen::InitColors()
 
     m_csBackground.SetColor( 0x00464646, 0.7f, 1.3f );
     m_csKBBackground.SetColor( 0x00999999, 0.4f, 0.0f );
-    m_csKBRed.SetColor(cViz.iBarColor, 0.5f);
+    m_csKBRed.SetColor( 0x000D0A98, 0.5f );
     m_csKBWhite.SetColor( 0x00FFFFFF, 0.8f, 0.6f );
     m_csKBSharp.SetColor( 0x00404040, 0.5f, 0.0f );
 }
@@ -2111,8 +2111,8 @@ void MainScreen::RenderText()
     int iLines = 2;
     if (m_bShowFPS && !m_bDumpFrames)
         iLines++;
-    if (viz.bNerdStats)
-        iLines += 2;
+    //if (viz.bNerdStats)
+        //iLines += 2;
     if (m_Timer.m_bManualTimer && !m_bDumpFrames)
         iLines++;
 
@@ -2179,6 +2179,9 @@ void MainScreen::RenderStatus(LPRECT prcStatus)
     TCHAR sVQCapacity[128];
     _stprintf_s(sVQCapacity, TEXT("%llu"), batch_vertices.capacity());
 
+    // Build scoring text
+    TCHAR sScore[128] = TEXT("N/A");
+
     // Build state debug text
     size_t state_size = 0;
     for (auto note_state : m_vState)
@@ -2205,13 +2208,6 @@ void MainScreen::RenderStatus(LPRECT prcStatus)
     m_pRenderer->DrawText(TEXT("Time:"), Renderer::Small, prcStatus, 0, 0xFFFFFFFF);
     m_pRenderer->DrawText(sTime, Renderer::Small, prcStatus, DT_RIGHT, 0xFFFFFFFF);
 
-    OffsetRect(prcStatus, 2, 16 + 1);
-    m_pRenderer->DrawText(TEXT("Tempo:"), Renderer::Small, prcStatus, 0, 0xFF404040);
-    m_pRenderer->DrawText(sTempo, Renderer::Small, prcStatus, DT_RIGHT, 0xFF404040);
-    OffsetRect(prcStatus, -2, -1);
-    m_pRenderer->DrawText(TEXT("Tempo:"), Renderer::Small, prcStatus, 0, 0xFFFFFFFF);
-    m_pRenderer->DrawText(sTempo, Renderer::Small, prcStatus, DT_RIGHT, 0xFFFFFFFF);
-
     if (m_bShowFPS && !m_bDumpFrames) {
         OffsetRect(prcStatus, 2, 16 + 1);
         m_pRenderer->DrawText(TEXT("FPS:"), Renderer::Small, prcStatus, 0, 0xFF404040);
@@ -2221,30 +2217,12 @@ void MainScreen::RenderStatus(LPRECT prcStatus)
         m_pRenderer->DrawText(sFPS, Renderer::Small, prcStatus, DT_RIGHT, 0xFFFFFFFF);
     }
 
-    if (viz.bNerdStats) {
-        OffsetRect(prcStatus, 2, 16 + 1);
-        m_pRenderer->DrawText(TEXT("VQ Capacity:"), Renderer::Small, prcStatus, 0, 0xFF404040);
-        m_pRenderer->DrawText(sVQCapacity, Renderer::Small, prcStatus, DT_RIGHT, 0xFF404040);
-        OffsetRect(prcStatus, -2, -1);
-        m_pRenderer->DrawText(TEXT("VQ Capacity:"), Renderer::Small, prcStatus, 0, 0xFFFFFFFF);
-        m_pRenderer->DrawText(sVQCapacity, Renderer::Small, prcStatus, DT_RIGHT, 0xFFFFFFFF);
-
-        OffsetRect(prcStatus, 2, 16 + 1);
-        m_pRenderer->DrawText(TEXT("m_vState:"), Renderer::Small, prcStatus, 0, 0xFF404040);
-        m_pRenderer->DrawText(sStateSize, Renderer::Small, prcStatus, DT_RIGHT, 0xFF404040);
-        OffsetRect(prcStatus, -2, -1);
-        m_pRenderer->DrawText(TEXT("m_vState:"), Renderer::Small, prcStatus, 0, 0xFFFFFFFF);
-        m_pRenderer->DrawText(sStateSize, Renderer::Small, prcStatus, DT_RIGHT, 0xFFFFFFFF);
-    }
-
-    if (m_Timer.m_bManualTimer && !m_bDumpFrames) {
-        OffsetRect(prcStatus, 2, 16 + 1);
-        m_pRenderer->DrawText(TEXT("Speed:"), Renderer::Small, prcStatus, 0, 0xFF404040);
-        m_pRenderer->DrawText(sSpeed, Renderer::Small, prcStatus, DT_RIGHT, 0xFF404040);
-        OffsetRect(prcStatus, -2, -1);
-        m_pRenderer->DrawText(TEXT("Speed:"), Renderer::Small, prcStatus, 0, 0xFFFFFFFF);
-        m_pRenderer->DrawText(sSpeed, Renderer::Small, prcStatus, DT_RIGHT, 0xFFFFFFFF);
-    }
+    OffsetRect(prcStatus, 2, 16 + 1);
+    m_pRenderer->DrawText(TEXT("Score:"), Renderer::Small, prcStatus, 0, 0xFF404040);
+    m_pRenderer->DrawText(sScore, Renderer::Small, prcStatus, DT_RIGHT, 0xFF404040);
+    OffsetRect(prcStatus, -2, -1);
+    m_pRenderer->DrawText(TEXT("Score:"), Renderer::Small, prcStatus, 0, 0xFFFFFFFF);
+    m_pRenderer->DrawText(sScore, Renderer::Small, prcStatus, DT_RIGHT, 0xFFFFFFFF);
 }
 
 void MainScreen::RenderMarker(LPRECT prcPos, const wchar_t* sStr)
