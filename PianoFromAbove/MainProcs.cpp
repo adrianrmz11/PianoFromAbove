@@ -1111,25 +1111,27 @@ INT_PTR LoadingProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     case WM_TIMER: {
         // lots of race conditions possible but hopefully nobody notices them
         const char* desc = "placeholder";
-        switch (g_LoadingProgress.stage) {
-        case MIDILoadingProgress::Stage::CopyToMem:
-            desc = "Copying MIDI into memory...";
-            break;
-        case MIDILoadingProgress::Stage::ParseTracks:
-            desc = "Parsing tracks...";
-            break;
-        case MIDILoadingProgress::Stage::ConnectNotes:
-            desc = "Connecting notes...";
-            break;
-        case MIDILoadingProgress::Stage::SortEvents:
-            desc = "Sorting events...";
-            break;
-        case MIDILoadingProgress::Stage::Finalize:
-            desc = "Finalizing...";
-            break;
-        case MIDILoadingProgress::Stage::Done:
-            EndDialog(hwnd, 0);
-            return true;
+
+        switch (g_LoadingProgress.stage) 
+        {
+            case MIDILoadingProgress::Stage::CopyToMem:
+                desc = "Copying MIDI into memory...";
+                break;
+            case MIDILoadingProgress::Stage::ParseTracks:
+                desc = "Parsing tracks...";
+                break;
+            case MIDILoadingProgress::Stage::ConnectNotes:
+                desc = "Connecting notes...";
+                break;
+            case MIDILoadingProgress::Stage::SortEvents:
+                desc = "Sorting events...";
+                break;
+            case MIDILoadingProgress::Stage::Finalize:
+                desc = "Finalizing...";
+                break;
+            case MIDILoadingProgress::Stage::Done:
+                EndDialog(hwnd, 0);
+                return true;
         }
 
         SetWindowTextA(GetDlgItem(hwnd, IDC_LOADINGDESC), desc);
@@ -1174,12 +1176,15 @@ BOOL PlayFile( const wstring &sFile, bool bCustomSettings, bool bLibraryEligible
     g_LoadingProgress.name = sFile;
     g_LoadingProgress.progress = 0;
     g_LoadingProgress.max = 1;
+
     auto thread = std::thread([&]() {
         pGameState = new MainScreen(sFile, ePlayMode, NULL, NULL);
         g_LoadingProgress.stage = MIDILoadingProgress::Done;
     });
+
     DialogBox(NULL, MAKEINTRESOURCE(IDD_LOADING), g_hWnd, LoadingProc);
     thread.join();
+
     if (!pGameState->IsValid())
     {
         MessageBox(g_hWnd, (L"Was not able to load " + sFile).c_str(), TEXT("Error"), MB_OK | MB_ICONEXCLAMATION);

@@ -666,7 +666,7 @@ void MainScreen::InitState()
     // m_Timer will be initialized *later*
     m_RealTimer.Init(false);
 
-    m_bDumpFrames = cViz.bDumpFrames;
+    m_bDumpFrames = false;
     if (m_bDumpFrames) {
         RECT rect = {};
         GetWindowRect(g_hWndGfx, &rect);
@@ -674,8 +674,10 @@ void MainScreen::InitState()
         int height = rect.bottom - rect.top;
 
         char buf[1024] = {};
+
         snprintf(buf, sizeof(buf), "Waiting for connection... (%d x %d)", width, height);
         SetWindowTextA(g_hWnd, buf);
+
         m_hVideoPipe = CreateNamedPipe(TEXT("\\\\.\\pipe\\pfadump"),
             PIPE_ACCESS_OUTBOUND,
             PIPE_TYPE_BYTE | PIPE_WAIT,
@@ -684,6 +686,7 @@ void MainScreen::InitState()
             0,
             0,
             nullptr);
+
         ConnectNamedPipe(m_hVideoPipe, NULL);
         SetWindowTextA(g_hWnd, "Connected!");
     }
@@ -713,6 +716,7 @@ GameState::GameError MainScreen::Init()
     m_OutDevice.Reset();
     m_OutDevice.SetVolume(1.0);
     m_Timer.Init(config.m_bManualTimer || m_bDumpFrames);
+
     if (m_bDumpFrames) 
     {
         m_Timer.SetFrameRate(60);
@@ -1054,12 +1058,15 @@ GameState::GameError MainScreen::Logic(void)
     m_iStartNote = min(cVisual.iFirstKey, cVisual.iLastKey);
     m_iEndNote = max(cVisual.iFirstKey, cVisual.iLastKey);
     m_bShowFPS = cVideo.bShowFPS;
+    
+
     if (m_bDumpFrames)
         m_pRenderer->SetLimitFPS(false);
     else if (m_Timer.m_bManualTimer)
         m_pRenderer->SetLimitFPS(true);
     else
         m_pRenderer->SetLimitFPS(cVideo.bLimitFPS);
+
     if (cVisual.iBkgColor != m_csBackground.iOrigBGR) m_csBackground.SetColor(cVisual.iBkgColor, 0.7f, 1.3f);
 
     double dMaxCorrect = (mInfo.iMaxVolume > 0 ? 127.0 / mInfo.iMaxVolume : 1.0);
@@ -2146,7 +2153,6 @@ void MainScreen::RenderStatus(LPRECT prcStatus)
         m_llStartTime >= 0 ? "" : "-",
         min, sec, cs,
         tmin, tsec, tcs);
-    //RenderStatusLine(cur_line++, "Tempo:", "%.3lf bpm", tempo);
 
     // Framerate
     if (m_bShowFPS && !m_bDumpFrames)

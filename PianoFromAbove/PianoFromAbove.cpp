@@ -239,6 +239,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdL
     // Clean up
     UnregisterClass( CLASSNAME, wc.hInstance );
     CoUninitialize();
+
     return 0;
 }
 

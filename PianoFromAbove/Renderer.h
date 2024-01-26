@@ -122,6 +122,7 @@ private:
     void SetupCommandList();
     bool UploadBackgroundBitmap();
     void MaintainAspectRatio();
+    void test(LPCWSTR path);
 
     static constexpr unsigned FrameCount = 2;
     static constexpr unsigned RectsPerPass = 10000; // Relatively low limit, but not many rects are supposed to be rendered anyway

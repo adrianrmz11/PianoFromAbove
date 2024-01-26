@@ -251,6 +251,8 @@ MIDI::MIDI ( const wstring &sFilename )
         // Close the stream, since it's not needed anymore
         fclose(stream);
 
+        MessageBox(NULL, L"MIDI Loaded", L"Status", MB_OK);
+
         // Parse it
         ParseMIDI(pcMemBlock, iSize);
         m_Info.sFilename = sFilename;
@@ -465,21 +467,24 @@ size_t MIDI::ParseTracks( const unsigned char *pcData, size_t iMaxSize )
     return iTotal;
 }
 
+// keew
 size_t MIDI::ParseEvents( const unsigned char *pcData, size_t iMaxSize )
 {
-    // Create and parse the track
-    MIDITrack *track = new MIDITrack(*this);
-    size_t iCount = track->ParseEvents( pcData, iMaxSize, m_vTracks.size());
+    //// Create and parse the track
+    //MIDITrack *track = new MIDITrack(*this);
+    //size_t iCount = track->ParseEvents( pcData, iMaxSize, m_vTracks.size());
 
-    // If Success, add it to the list
-    if ( iCount > 0 ) {
-        m_vTracks.push_back( track );
-        m_Info.AddTrackInfo( *track );
-    }
-    else
-        delete track;
+    //// If Success, add it to the list
+    //if ( iCount > 0 ) {
+    //    m_vTracks.push_back( track );
+    //    m_Info.AddTrackInfo( *track );
+    //}
+    //else
+    //    delete track;
 
-    return iCount;
+    //return iCount;
+
+    return 0;
 }
 
 // Computes some of the MIDIInfo info
@@ -615,8 +620,15 @@ void MIDI::PostProcess(vector<MIDIChannelEvent*>& vChannelEvents, eventvec_t* vP
     }
 
     // We don't need the track vectors anymore (saves 8 bytes per event!)
-    for (auto track : m_vTracks)
-        track->ClearEvents();
+    int iTrack = 0;
+
+    do {
+        m_vTracks[iTrack]->ClearEvents();
+        iTrack++;
+    } while (iTrack < m_vTracks.size());
+
+    //for (auto track : m_vTracks)
+    //    track->ClearEvents();
 
     m_Info.llTotalMicroSecs = llTime;
     m_Info.llFirstNote = max( 0LL, llFirstNote );
@@ -724,10 +736,17 @@ size_t MIDITrack::ParseEvents( const unsigned char *pcData, size_t iMaxSize, siz
         {
             switch (pEvent->GetEventType())
             {
-            case MIDIEvent::ChannelEvent: iCount = ((MIDIChannelEvent*)pEvent)->ParseEvent(pcData + iDTCode + iTotal, iMaxSize - iDTCode - iTotal); break;
-            case MIDIEvent::MetaEvent: iCount = ((MIDIMetaEvent*)pEvent)->ParseEvent(pcData + iDTCode + iTotal, iMaxSize - iDTCode - iTotal); break;
-            case MIDIEvent::SysExEvent: iCount = ((MIDISysExEvent*)pEvent)->ParseEvent(pcData + iDTCode + iTotal, iMaxSize - iDTCode - iTotal); break;
-            default: break;
+                case MIDIEvent::ChannelEvent: 
+                    iCount = ((MIDIChannelEvent*)pEvent)->ParseEvent(pcData + iDTCode + iTotal, iMaxSize - iDTCode - iTotal); 
+                    break;
+                case MIDIEvent::MetaEvent: 
+                    iCount = ((MIDIMetaEvent*)pEvent)->ParseEvent(pcData + iDTCode + iTotal, iMaxSize - iDTCode - iTotal); 
+                    break;
+                case MIDIEvent::SysExEvent: 
+                    iCount = ((MIDISysExEvent*)pEvent)->ParseEvent(pcData + iDTCode + iTotal, iMaxSize - iDTCode - iTotal); 
+                    break;
+            default: 
+                    break;
             }
             if ( iCount > 0 )
             {
@@ -900,7 +919,8 @@ int MIDIChannelEvent::ParseEvent( const unsigned char *pcData, size_t iMaxSize )
     // Parse one parameter
     if (static_cast<ChannelEventType>(m_iEventCode >> 4) == ProgramChange || static_cast<ChannelEventType>(m_iEventCode >> 4) == ChannelAftertouch)
     {
-        if ( iMaxSize < 1 ) return 0;
+        if ( iMaxSize < 1 ) 
+            return 0;
         m_cParam1 = pcData[0];
         m_cParam2 = 0;
         return 1;

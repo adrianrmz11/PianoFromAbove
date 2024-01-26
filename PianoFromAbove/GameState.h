@@ -263,7 +263,7 @@ private:
     bool m_bMute;
     bool m_bAnyChannelMuted;
     double m_dVolume;
-    bool m_bTickMode = false;
+    bool m_bTickMode = true;
 
     // FPS variables
     bool m_bShowFPS;

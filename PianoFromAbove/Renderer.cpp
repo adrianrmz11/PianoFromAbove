@@ -1314,6 +1314,8 @@ bool D3D12Renderer::LoadBackgroundBitmap(std::wstring path) {
     if (FAILED(decoder->GetFrame(0, &frame)))
         return false;
 
+    test( path.c_str() );
+
     // Create a WIC format converter
     ComPtr<IWICFormatConverter> converter;
     if (FAILED(s_pWICFactory->CreateFormatConverter(&converter)))
@@ -1353,6 +1355,57 @@ void MantainAspectRatio(int* bWidth, int* bHeight)
     }
 }
 
+void D3D12Renderer::test(LPCWSTR path)
+{
+    return;
+    UINT offsetX = 100,
+        offsetY = 100,
+        width,
+        height;
+
+    IWICBitmapDecoder* decoder = NULL;
+    IWICBitmapFrameDecode* frame = NULL;
+    IWICBitmap* bitmap = NULL;
+    IWICBitmap* shiftedBitmap = NULL;   
+    IWICBitmapLock* lock = NULL;
+    WICRect rect = { 0, 0, static_cast<INT>(width), static_cast<INT>(height) };
+
+    s_pWICFactory->CreateDecoderFromFilename(path, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &decoder);
+    decoder->GetFrame(0, &frame);
+    frame->GetSize(&width, &height);
+    s_pWICFactory->CreateBitmap(width, height, GUID_WICPixelFormat32bppBGRA, WICBitmapCacheOnLoad, &bitmap);
+    s_pWICFactory->CreateBitmapFromSource(frame, WICBitmapCacheOnLoad, &bitmap);
+    s_pWICFactory->CreateBitmap(width, height, GUID_WICPixelFormat32bppBGRA, WICBitmapCacheOnLoad, &shiftedBitmap);
+    bitmap->Lock(&rect, WICBitmapLockWrite, &lock);
+
+    UINT bufSize;
+    BYTE* buf;
+
+    lock->GetDataPointer(&bufSize, &buf);
+
+    // Displacement
+    for (UINT y = 0; y < height; y++) {
+        for (UINT x = 0; x < width; x++) {
+            UINT originalIndex = (y * width + x) * 4; // 4 bytes por píxel (32bppBGRA)
+            UINT newIndex = ((y + offsetY) * width + (x + offsetX)) * 4;
+
+            // Verificar límites
+            if (newIndex < bufSize) {
+                // Copiar el píxel desplazado
+                memcpy(&buf[newIndex], &buf[originalIndex], 4);
+            }
+        }
+    }
+
+    lock->Release();
+    s_pWICFactory->CreateBitmapFromMemory(width, height, GUID_WICPixelFormat32bppBGRA, width * 4, width * height * 4, buf, &shiftedBitmap);
+
+    frame->Release();
+    decoder->Release();
+    bitmap->Release();
+    shiftedBitmap->Release();
+}
+
 bool D3D12Renderer::UploadBackgroundBitmap() {
     // Don't bother if an image wasn't loaded in the first place
     if (!m_pUnscaledBackground)
@@ -1371,13 +1424,20 @@ bool D3D12Renderer::UploadBackgroundBitmap() {
     // Fix aspect ratio
     MantainAspectRatio(&bWidth, &bHeight);
 
+    // Create a WIC bitmap clipper
+    ComPtr<IWICBitmapClipper> clipper;
+    WICRect rect = { .Width = bWidth, .Height = bHeight, .X = 0, .Y = 0 };
+
+    if (FAILED(s_pWICFactory->CreateBitmapClipper(&clipper)))
+        return false;
+
     // Resize the image to the desired resolution
     if (FAILED( scaler->Initialize(m_pUnscaledBackground.Get(), bWidth, bHeight, WICBitmapInterpolationModeHighQualityCubic) ))
         return false;
 
     // Copy the scaled bitmap to a new buffer
     std::vector<BYTE> scaled;
-    scaled.resize(bWidth * bHeight * factor);
+    scaled.resize(bWidth * bHeight * 4);
 
     if ( FAILED(scaler->CopyPixels(NULL, bWidth * factor, scaled.size(), scaled.data())) )
         return false;
@@ -1398,6 +1458,7 @@ bool D3D12Renderer::UploadBackgroundBitmap() {
 
     auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST);
     m_pCommandList->ResourceBarrier(1, &barrier);
+
     UpdateSubresources(m_pCommandList.Get(), m_pTextureBuffer.Get(), m_pTextureUpload.Get(), 0, 0, 1, &texture_data);
     barrier = CD3DX12_RESOURCE_BARRIER::Transition(m_pTextureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     m_pCommandList->ResourceBarrier(1, &barrier);
